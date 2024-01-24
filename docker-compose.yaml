@@ -15,7 +15,7 @@ services:
 
   flask_app:
     container_name: flask_app
-    build: ./main_flask_app
+    build: ./main
     ports:
       - "4000:4000"
     environment:
