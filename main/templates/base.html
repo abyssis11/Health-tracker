@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker</title>
+    <!-- Add CSS links here -->
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/account">Account</a></li>
+            <li><a href="/metrics">Health Metrics</a></li>
+            <li><a href="/new-metric">New Health Metric</a></li>
+            <li><a href="/login">Login/Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <!-- Footer content here -->
+    </footer>
+</body>
+</html>

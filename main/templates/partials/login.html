@@ -1,0 +1,19 @@
+{% extends 'auth_base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <form hx-post="/login" hx-encoding="multipart/form-data" hx-target="#response" hx-swap="outerHTML">
+        <h2>Login</h2>
+        <div id="response"></div>
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="/register">Register here</a></p>
+{% endblock %}
