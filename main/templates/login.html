@@ -4,12 +4,20 @@
     <meta charset="UTF-8">
     <title>Login | Health Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/hyperscript"></script>
 </head>
 <body class="auth-body">
     <section class="auth-container">
         <h1>Welcome back!</h1>
         <p>Login to see your Health metrics</p>
-        <form id="login-form" hx-post="{{ url_for('login_user') }}" hx-target="#login-form" hx-swap="outerHTML">
+        <body>
+            {% set messages = get_flashed_messages() %}
+                {% if messages %}
+                     <h1>{{ messages[-1] }}</h1>
+                {% endif %}
+          </body>
+        <!--<form id="login-form" hx-post="{{ url_for('login') }}" hx-target="#login-form" hx-swap="outerHTML">-->
+            <form id="login-form" method="POST" action="{{ url_for('login') }}">
             <div class="input-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
@@ -22,6 +30,10 @@
 
             <button type="submit">Login</button>
             <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+
+            {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+    {% endif %}
         </form>
     </section>
 </body>

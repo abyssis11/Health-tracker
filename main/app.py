@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
 from datetime import datetime
+from flask import flash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
@@ -42,20 +43,21 @@ def register():
         existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
 
         if existing_user:
-            #return render_template('login.html', error='Username or email already registered')
-            return redirect('/login')
+            error_message = 'Error: Username already exists'
+            flash(error_message)
+            return redirect(url_for("register"))
         else:
             new_user = User(
                 username=username,
                 email=email,
                 password=password
-            
             )
             db.session.add(new_user)
             db.session.commit()
-        #return render_template('homepage.html')
-        return redirect('/<username>')
-        
+
+            # Redirect to the user's dashboard after successful registration
+            return redirect(url_for('user_dashboard', username=username))
+
     return render_template('register.html')
 
 
@@ -68,15 +70,21 @@ def login():
         user = User.query.filter_by(username=username, password=password).first()
 
         if user:
-            #return redirect(url_for('homepage.html', username=username))
-            return redirect('/<username>')
-        # else:
-        #     return render_template('login.html', error='Invalid username or password')
+            session['username'] = username  # Store username in session
+            return redirect(url_for('user_dashboard', username=username))
+        else:
+            error_message = 'Error: Username or password is incorrect.'
+            flash(error_message)
+            return redirect(url_for("login"))
 
+    # If it's a GET request or login fails, render the login template
     return render_template('login.html')
 
 @app.route('/<username>', methods=['GET', 'POST'])
 def user_dashboard(username):
+    if 'username' not in session or session['username'] != username:
+        return redirect(url_for('login'))
+
     user = User.query.filter_by(username=username).first()
 
     if request.method == 'POST':
@@ -96,10 +104,12 @@ def user_dashboard(username):
         db.session.add(health_metrics)
         db.session.commit()
 
-    return render_template('homepage.html', user=user)
+    return render_template('base.html', user=user)
+
 
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
         db.create_all()
+    app.secret_key = 'totallyuniqueSecretKey' 
     app.run(debug=True, host='0.0.0.0', port=4000)
