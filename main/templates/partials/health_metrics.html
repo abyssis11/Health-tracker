@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="health-metrics">
+    <h2>Health Metrics</h2>
+    <div class="time-period-selector">
+        <!-- HTMX attributes can be adjusted according to your server endpoints -->
+        <button hx-get="/metrics?period=today" hx-trigger="click" hx-target="#metrics">Today</button>
+        <button hx-get="/metrics?period=yesterday" hx-trigger="click" hx-target="#metrics">Yesterday</button>
+        <button hx-get="/metrics?period=last7days" hx-trigger="click" hx-target="#metrics">Last 7 days</button>
+        <button hx-get="/metrics?period=lastmonth" hx-trigger="click" hx-target="#metrics">Last month</button>
+    </div>
+    <div class="analytics-selector">
+        <button hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics">All your age</button>
+        <button hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics">All your height</button>
+        <button hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics">All your weight</button>
+    </div>
+    <div id="metrics">
+        <!-- Dynamic content loaded from server -->
+        <p>Calorie intake: <span id="calories">{{ calorie }} kcal</span></p>
+        <p>Exercise: <span id="exercise">{{ exercise }} minutes</span></p>
+        <p>Sleep: <span id="sleep">{{ sleep }} hours</span></p>
+        <p>Water intake: <span id="water">{{ water }} liters</span></p>
+    </div>
+</section>
+{% endblock %}

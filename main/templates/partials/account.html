@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="account-info">
+    <h2>Your Information and Goals:</h2>
+    <form id="account-form" hx-post="/update-account" hx-target="#account-form" hx-swap="outerHTML">
+        <div class="input-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age">
+        </div>
+
+        <div class="input-group">
+            <label for="height">Height</label>
+            <input type="number" id="height" name="height">
+        </div>
+
+        <div class="input-group">
+            <label for="weight">Weight</label>
+            <input type="number" id="weight" name="weight">
+        </div>
+
+        <div class="input-group">
+            <label for="calorie-intake-goal">Calorie intake goal (kcal)</label>
+            <input type="number" id="calorie-intake-goal" name="calorie_intake_goal">
+        </div>
+
+        <div class="input-group">
+            <label for="exercise-goal">Exercise goal (minutes)</label>
+            <input type="number" id="calorie-intake-goal" name="exercise_goal">
+        </div>
+
+        <div class="input-group">
+            <label for="sleep-goal">Sleep goal (hours)</label>
+            <input type="number" id="sleep-goal" name="sleep_goal">
+        </div>
+
+        <div class="input-group">
+            <label for="water-intake-goal">Water intake goal (liters)</label>
+            <input type="number" id="water-intake-goal" name="water_intake_goal">
+        </div>
+
+        <button type="submit">Save</button>
+    </form>
+</section>
+{% endblock %}

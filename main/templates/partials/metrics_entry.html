@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="new-metric-form" id="new-metric-form">
+    <h3>Enter New Health Metric</h3>
+    <form hx-post="/submit-metric" hx-target="#result" hx-swap="outerHTML">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="calorieIntake">Calorie Intake:</label>
+        <input type="number" id="calorieIntake" name="calorieIntake" required>
+
+        <label for="exerciseDuration">Exercise Duration (in minutes):</label>
+        <input type="number" id="exerciseDuration" name="exerciseDuration" required>
+
+        <label for="sleepHours">Sleep Hours:</label>
+        <input type="number" id="sleepHours" name="sleepHours" required>
+
+        <label for="waterConsumed">Water Consumed (in liters):</label>
+        <input type="number" id="waterConsumed" name="waterConsumed" required>
+
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+</div>
+{% endblock %}
