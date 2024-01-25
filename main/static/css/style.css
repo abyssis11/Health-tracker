@@ -1,57 +1,209 @@
+/* Base */
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
     background: #f4f4f4;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 10px 0;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a.logout {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main {
+    padding: 20px;
+}
+
+/* Continue with other styles... */
+
+
+
+/* Account */
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: .5rem;
+}
+
+.input-group input[type="number"],
+.input-group input[type="text"] {
+    width: 100%;
+    padding: .5rem;
+    line-height: 1.5;
+    border: 1px solid #ccc;
+    border-radius: .25rem;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: .5rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: .25rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Health metrics */
+.health-metrics {
+    background: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.time-period-selector button,
+.analytics-selector button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.time-period-selector button:hover,
+.analytics-selector button:hover {
+    background-color: #e0e0e0;
+}
+
+#metrics {
+    margin-top: 20px;
+}
+
+#metrics p {
+    font-size: 1.1rem;
+    margin: 10px 0;
+}
+
+#metrics span {
+    font-weight: bold;
+}
+
+/* Add metric */
+.add-metric {
+    background: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-metric h2 {
+    margin-bottom: 20px;
+}
+
+.input-group input[type="date"] {
+    width: 100%;
+    padding: .5rem;
+    line-height: 1.5;
+    border: 1px solid #ccc;
+    border-radius: .25rem;
+}
+
+/* Register */
+.auth-body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    background-color: #f8f8f8;
 }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
-    background: white;
+.auth-container {
+    width: 300px;
     padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
-h1 {
+.auth-container h1 {
     color: #333;
+    font-size: 24px;
 }
 
-.login-container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.auth-container p {
+    margin: 10px 0 20px;
+    color: #666;
 }
 
-.form-group {
+/*
+.input-group {
     margin-bottom: 15px;
 }
 
-.form-group label {
+.input-group label {
     display: block;
+    text-align: left;
     margin-bottom: 5px;
+    color: #666;
 }
-
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
+*/
 
 button {
     width: 100%;
-    padding: 10px;
+    padding: 10px 0;
+    background-color: #5cb85c;
     border: none;
     border-radius: 4px;
-    background: #333;
     color: white;
+    font-size: 16px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 button:hover {
-    background: #555;
+    background-color: #4cae4c;
+}
+
+a {
+    color: #5cb85c;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
