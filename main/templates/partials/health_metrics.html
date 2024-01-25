@@ -3,17 +3,21 @@
 {% block content %}
 <section class="health-metrics">
     <h2>Health Metrics</h2>
+    <br>
+    <h3>Choose time period:</h3>
     <div class="time-period-selector">
         <!-- HTMX attributes can be adjusted according to your server endpoints -->
-        <button hx-get="/metrics?period=today" hx-trigger="click" hx-target="#metrics">Today</button>
-        <button hx-get="/metrics?period=yesterday" hx-trigger="click" hx-target="#metrics">Yesterday</button>
-        <button hx-get="/metrics?period=last7days" hx-trigger="click" hx-target="#metrics">Last 7 days</button>
-        <button hx-get="/metrics?period=lastmonth" hx-trigger="click" hx-target="#metrics">Last month</button>
+        <button calss ="active" hx-get="/metrics?period=today" hx-trigger="click" hx-target="#metrics">Today</button>
+        <button calss ="active" hx-get="/metrics?period=yesterday" hx-trigger="click" hx-target="#metrics">Yesterday</button>
+        <button calss ="active" hx-get="/metrics?period=last7days" hx-trigger="click" hx-target="#metrics">Last 7 days</button>
+        <button calss ="active" hx-get="/metrics?period=lastmonth" hx-trigger="click" hx-target="#metrics">Last month</button>
     </div>
+    <h3>Analytics for:</h3>
     <div class="analytics-selector">
-        <button hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics">All your age</button>
-        <button hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics">All your height</button>
-        <button hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics">All your weight</button>
+        <button calss ="active" hx-get="/metrics?type=me" hx-trigger="click" hx-target="#metrics">Just Me</button>
+        <button calss ="active" hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics">All my age</button>
+        <button calss ="active" hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics">All my height</button>
+        <button calss ="active" hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics">All my weight</button>
     </div>
     <div id="metrics">
         <!-- Dynamic content loaded from server -->

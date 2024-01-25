@@ -80,7 +80,7 @@ def login():
     # If it's a GET request or login fails, render the login template
     return render_template('login.html')
 
-@app.route('/<username>', methods=['GET', 'POST'])
+@app.route('/health_metrics/<username>', methods=['GET', 'POST'])
 def user_dashboard(username):
     if 'username' not in session or session['username'] != username:
         return redirect(url_for('login'))
@@ -104,7 +104,11 @@ def user_dashboard(username):
         db.session.add(health_metrics)
         db.session.commit()
 
-    return render_template('base.html', user=user)
+    return render_template('partials/health_metrics.html', user=user)
+
+@app.route('/add_metric_page', methods=['GET'])
+def add_metric_page():
+    return render_template('partials/add_metric.html')
 
 
 if __name__ == '__main__':
