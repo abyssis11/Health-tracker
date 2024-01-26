@@ -95,7 +95,7 @@ def user_dashboard(username):
         exercise_duration = request.form.get('exercise_duration')
         sleep_hours = request.form.get('sleep_hours')
         water_consumed = request.form.get('water_consumed')
-
+        '''
         health_metrics = HealthMetrics(
             user=user,
             calorie_intake=calorie_intake,
@@ -106,7 +106,7 @@ def user_dashboard(username):
 
         db.session.add(health_metrics)
         db.session.commit()
-
+        '''
     default_content = render_template('partials/health_metrics.html')
     return render_template('base.html', user=user, content = default_content)
 
@@ -118,6 +118,7 @@ def update_account():
     username = session['username']
     user = User.query.filter_by(username=username).first()
 
+    '''
     if user:
         age = request.form.get('age')
         height = request.form.get('height')
@@ -140,8 +141,9 @@ def update_account():
 
         db.session.add(user_health_goals)
         db.session.commit()
-
-    return redirect(url_for('user_dashboard', username=username))
+    '''
+    #return redirect(url_for('user_dashboard', username=username))
+    return render_template('partials/account_info.html')
 
 @app.route('/submit-metric', methods=['POST'])
 def submit_metric():
@@ -170,7 +172,7 @@ def submit_metric():
         db.session.add(health_metrics)
         db.session.commit()
 
-    return redirect(url_for('user_dashboard', username=username))
+    return render_template('partials/health_metrics.html')
 
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
@@ -218,7 +220,7 @@ def get_metrics():
             print(f"Metric: {metric}")
 
         # Pass the metrics data to the template for rendering
-        return render_template('partials/health_metrics.html', metrics=metrics)
+        return render_template('partials/metrics.html', metrics=metrics)
 
     return redirect(url_for('login'))
 
@@ -230,7 +232,7 @@ def account():
 def health_metrics():
     return render_template('partials/health_metrics.html')
 
-@app.route('/add_metric')
+@app.route('/add-metric')
 def add_metric():
     return render_template('partials/add_metric.html')
 
