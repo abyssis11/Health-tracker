@@ -1,13 +1,19 @@
 {% block account_info %}
 <div id="info">
-    <p>HI</p>
-    <!-- SLICNO KO OVO
-    {% for metric in metrics %}
-    <p>Date: <span id="date">{{ metric.date }} </span></p>
-    <p>Calorie intake: <span id="calories">{{ metric.calorie_intake }} kcal</span></p>
-    <p>Exercise: <span id="exercise">{{ metric.exercise_duration }} minutes</span></p>
-    <p>Sleep: <span id="sleep">{{ metric.sleep_hours }} hours</span></p>
-    <p>Water intake: <span id="water">{{ metric.water_consumed }} liters</span></p>
-{% endfor %}-->
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+
+    <!-- Display UserHealthGoals data if available -->
+    {% if user_health_goals %}
+        <p>Age: {{ user_health_goals.age if user_health_goals.age else 'None' }}</p>
+        <p>Height: {{ user_health_goals.height if user_health_goals.height else 'None' }}</p>
+        <p>Weight: {{ user_health_goals.weight if user_health_goals.weight else 'None' }}</p>
+        <p>Calorie Goal: {{ user_health_goals.goal_type_calorie if user_health_goals.goal_type_calorie else 'None' }}</p>
+        <p>Exercise Goal: {{ user_health_goals.goal_type_exercise if user_health_goals.goal_type_exercise else 'None' }}</p>
+        <p>Sleep Goal: {{ user_health_goals.goal_type_sleep if user_health_goals.goal_type_sleep else 'None' }}</p>
+        <p>Water Goal: {{ user_health_goals.goal_type_water if user_health_goals.goal_type_water else 'None' }}</p>
+    {% else %}
+        <p>No health goals set for this user. Set your health goals <a href="{{ url_for('update_account') }}">here</a>.</p>
+    {% endif %}
 </div>
 {% endblock %}
