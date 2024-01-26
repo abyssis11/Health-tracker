@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import flash
 
 app = Flask(__name__)
@@ -30,7 +30,10 @@ class UserHealthGoals(db.Model):
     goal_type_calorie = db.Column(db.Float)
     goal_type_exercise = db.Column(db.Float)
     goal_type_sleep = db.Column(db.Float)
-    goal_type_water = db.Column(db.Float) 
+    goal_type_water = db.Column(db.Float)
+    age = db.Column(db.Float)
+    height = db.Column(db.Float)
+    weight = db.Column(db.Float)    
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -106,6 +109,118 @@ def user_dashboard(username):
 
     default_content = render_template('partials/health_metrics.html')
     return render_template('base.html', user=user, content = default_content)
+
+@app.route('/update-account', methods=['POST'])
+def update_account():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        age = request.form.get('age')
+        height = request.form.get('height')
+        weight = request.form.get('weight')
+        calorie_intake_goal = request.form.get('calorie_intake_goal')
+        exercise_goal = request.form.get('exercise_goal')
+        sleep_goal = request.form.get('sleep_goal')
+        water_intake_goal = request.form.get('water_intake_goal')
+
+        user_health_goals = UserHealthGoals(
+            user=user,
+            age=age,
+            height=height,
+            weight=weight,
+            goal_type_calorie=calorie_intake_goal,
+            goal_type_exercise=exercise_goal,
+            goal_type_sleep=sleep_goal,
+            goal_type_water=water_intake_goal
+        )
+
+        db.session.add(user_health_goals)
+        db.session.commit()
+
+    return redirect(url_for('user_dashboard', username=username))
+
+@app.route('/submit-metric', methods=['POST'])
+def submit_metric():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        date = request.form.get('date')
+        calorie_intake = request.form.get('calorie_intake')
+        exercise_duration = request.form.get('exercise')
+        sleep_hours = request.form.get('sleep')
+        water_consumed = request.form.get('water_intake')
+
+        health_metrics = HealthMetrics(
+            user=user,
+            date=date,
+            calorie_intake=calorie_intake,
+            exercise_duration=exercise_duration,
+            sleep_hours=sleep_hours,
+            water_consumed=water_consumed
+        )
+
+        db.session.add(health_metrics)
+        db.session.commit()
+
+    return redirect(url_for('user_dashboard', username=username))
+
+@app.route('/metrics', methods=['GET'])
+def get_metrics():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        period = request.args.get('period')
+        analytics_type = request.args.get('type')
+
+        # Example: Retrieve metrics based on the selected parameters
+        metrics_query = HealthMetrics.query.filter_by(user=user)
+
+        # Additional filters based on the selected period (you may need to adjust this logic)
+        if period == 'today':
+            metrics_query = metrics_query.filter(HealthMetrics.date == datetime.today().date())
+        elif period == 'yesterday':
+            metrics_query = metrics_query.filter(HealthMetrics.date == (datetime.today() - timedelta(days=1)).date())
+        elif period == 'last7days':
+            metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=7)).date())
+        elif period == 'lastmonth':
+            metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=30)).date())
+
+        # Additional filters based on the selected analytics type
+        if analytics_type == 'me':
+            metrics_query = metrics_query.filter(HealthMetrics.user == user)
+        elif analytics_type == 'age':
+            # Add logic for age-based analytics
+            pass
+        elif analytics_type == 'height':
+            # Add logic for height-based analytics
+            pass
+        elif analytics_type == 'weight':
+            # Add logic for weight-based analytics
+            pass
+
+        # Execute the query and get the results
+        metrics = metrics_query.all()
+
+        # Print the metrics to the console for debugging
+        for metric in metrics:
+            print(f"Metric: {metric}")
+
+        # Pass the metrics data to the template for rendering
+        return render_template('partials/health_metrics.html', metrics=metrics)
+
+    return redirect(url_for('login'))
 
 @app.route('/account')
 def account():
