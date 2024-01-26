@@ -44,6 +44,17 @@ main {
 }
 
 /* Account */
+
+.account-info {
+    max-width: 600px; /* Set a max-width for the content */
+    margin: 20px auto; /* Center the content and add some margin */
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px; /* Slight rounding of corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* subtle shadow */
+    text-align: center; /* Center the text */
+}
+
 .input-group {
     margin-bottom: 1rem;
 }
@@ -56,7 +67,8 @@ main {
 .input-group input[type="number"],
 .input-group input[type="text"],
 .input-group input[type="password"],
-.input-group input[type="email"] {
+.input-group input[type="email"],
+.input-group input[type="date"] {
     width: 90%;
     padding: .5rem;
     line-height: 1.5;
@@ -176,23 +188,17 @@ button:hover {
 
 /* Add metric */
 .add-metric {
-    background: #fff;
+    max-width: 600px; /* Set a max-width for the content */
+    margin: 20px auto; /* Center the content and add some margin */
     padding: 20px;
-    margin-top: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 8px; /* Slight rounding of corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* subtle shadow */
+    text-align: center; /* Center the text */
 }
 
 .add-metric h2 {
     margin-bottom: 20px;
-}
-
-.input-group input[type="date"] {
-    width: 100%;
-    padding: .5rem;
-    line-height: 1.5;
-    border: 1px solid #ccc;
-    border-radius: .25rem;
 }
 
 /* Register */

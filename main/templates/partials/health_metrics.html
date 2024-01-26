@@ -5,27 +5,21 @@
     <h3>Choose time period:</h3>
     <div class="time-period-selector">
         <!-- HTMX attributes can be adjusted according to your server endpoints -->
-        <button calss ="active" hx-get="/metrics?period=today" hx-trigger="click" hx-target="#metrics">Today</button>
-        <button calss ="active" hx-get="/metrics?period=yesterday" hx-trigger="click" hx-target="#metrics">Yesterday</button>
-        <button calss ="active" hx-get="/metrics?period=last7days" hx-trigger="click" hx-target="#metrics">Last 7 days</button>
-        <button calss ="active" hx-get="/metrics?period=lastmonth" hx-trigger="click" hx-target="#metrics">Last month</button>
+        <button calss ="active" hx-get="/metrics?period=today" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Today</button>
+        <button calss ="active" hx-get="/metrics?period=yesterday" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Yesterday</button>
+        <button calss ="active" hx-get="/metrics?period=last7days" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Last 7 days</button>
+        <button calss ="active" hx-get="/metrics?period=lastmonth" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Last month</button>
     </div>
     <h3>Analytics for:</h3>
     <div class="analytics-selector">
-        <button calss ="active" hx-get="/metrics?type=me" hx-trigger="click" hx-target="#metrics">Just Me</button>
-        <button calss ="active" hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics">All my age</button>
-        <button calss ="active" hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics">All my height</button>
-        <button calss ="active" hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics">All my weight</button>
+        <button calss ="active" hx-get="/metrics?type=me" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Just Me</button>
+        <button calss ="active" hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my age</button>
+        <button calss ="active" hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my height</button>
+        <button calss ="active" hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my weight</button>
     </div>
     <div id="metrics">
-        <!-- Dynamic content loaded from server -->
-    {% for metric in metrics %}
-        <p>Date: <span id="date">{{ metric.date }} </span></p>
-        <p>Calorie intake: <span id="calories">{{ metric.calorie_intake }} kcal</span></p>
-        <p>Exercise: <span id="exercise">{{ metric.exercise_duration }} minutes</span></p>
-        <p>Sleep: <span id="sleep">{{ metric.sleep_hours }} hours</span></p>
-        <p>Water intake: <span id="water">{{ metric.water_consumed }} liters</span></p>
-    {% endfor %}
+        {% block metrics_block %}
+        {% endblock %}
     </div>
 </section>
 {% endblock %}

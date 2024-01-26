@@ -12,13 +12,13 @@
             <ul>
                 <li><a href="/" hx-get="/account" hx-trigger="click" hx-target="#content" hx-swap="innerHTML">ACCOUNT</a></li>
                 <li><a href="/" hx-get="/health-metrics" hx-trigger="click" hx-target="#content" hx-swap="innerHTML">HEALTH METRICS</a></li>
-                <li><a href="/" hx-get="/add_metric" hx-trigger="click" hx-target="#content" hx-swap="innerHTML">ADD METRIC</a></li>
+                <li><a href="/" hx-get="/add-metric" hx-trigger="click" hx-target="#content" hx-swap="innerHTML">ADD METRIC</a></li>
             </ul>
             <a href="/logout" class="logout">Logout</a>
         </nav>
     </header>
 
-    <main id="content" hx-swap="outerHTML">
+    <main id="content">
         {% block content %}
            {{ content|safe }}
         <!-- The content from child templates will be injected here -->

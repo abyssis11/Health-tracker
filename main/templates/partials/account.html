@@ -1,7 +1,11 @@
 {% block content %}
 <section class="account-info">
     <h2>Your Information and Goals:</h2>
-    <form id="account-form" hx-post="/update-account" hx-target="#account-form" hx-swap="outerHTML">
+    <div id="info">
+        {% block account_info %}
+        {% endblock %}
+    </div>   
+    <form id="account-form" hx-post="/update-account" hx-target="#info" hx-swap="outerHTML">
         <div class="input-group">
             <label for="age">Age</label>
             <input type="number" id="age" name="age">
