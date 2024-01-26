@@ -14,6 +14,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     health_metrics = db.relationship('HealthMetrics', backref='user', lazy=True)
+    health_goals = db.relationship('UserHealthGoals', backref='user', uselist=False, lazy=True)
+
 
 class HealthMetrics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,6 +91,12 @@ def user_dashboard(username):
         return redirect(url_for('login'))
 
     user = User.query.filter_by(username=username).first()
+    user_health_goals = UserHealthGoals.query.filter_by(user=user).first()
+    
+    if user_health_goals is None:
+        user_health_goals = UserHealthGoals(user=user)
+        db.session.add(user_health_goals)
+        db.session.commit()
 
     if request.method == 'POST':
         calorie_intake = request.form.get('calorie_intake')
@@ -108,7 +116,7 @@ def user_dashboard(username):
         db.session.commit()
         '''
     default_content = render_template('partials/health_metrics.html')
-    return render_template('base.html', user=user, content = default_content)
+    return render_template('base.html', user=user, content = default_content,user_health_goals=user_health_goals)
 
 @app.route('/update-account', methods=['POST'])
 def update_account():
@@ -117,8 +125,9 @@ def update_account():
 
     username = session['username']
     user = User.query.filter_by(username=username).first()
+    user_health_goals = None
 
-    '''
+    
     if user:
         age = request.form.get('age')
         height = request.form.get('height')
@@ -127,23 +136,28 @@ def update_account():
         exercise_goal = request.form.get('exercise_goal')
         sleep_goal = request.form.get('sleep_goal')
         water_intake_goal = request.form.get('water_intake_goal')
+        
+        if user.health_goals:
+            user_health_goals = user.health_goals
+        else:
+            user_health_goals = UserHealthGoals(user=user)
 
-        user_health_goals = UserHealthGoals(
-            user=user,
-            age=age,
-            height=height,
-            weight=weight,
-            goal_type_calorie=calorie_intake_goal,
-            goal_type_exercise=exercise_goal,
-            goal_type_sleep=sleep_goal,
-            goal_type_water=water_intake_goal
-        )
+        user_health_goals.age = age
+        user_health_goals.height = height
+        user_health_goals.weight = weight
+        user_health_goals.goal_type_calorie = calorie_intake_goal
+        user_health_goals.goal_type_exercise = exercise_goal
+        user_health_goals.goal_type_sleep = sleep_goal
+        user_health_goals.goal_type_water = water_intake_goal
 
         db.session.add(user_health_goals)
         db.session.commit()
-    '''
+
+        db.session.add(user_health_goals)
+        db.session.commit()
+    
     #return redirect(url_for('user_dashboard', username=username))
-    return render_template('partials/account_info.html')
+    return render_template('partials/account_info.html', user=user, user_health_goals=user_health_goals)
 
 @app.route('/submit-metric', methods=['POST'])
 def submit_metric():
