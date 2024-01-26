@@ -19,10 +19,13 @@
     </div>
     <div id="metrics">
         <!-- Dynamic content loaded from server -->
-        <p>Calorie intake: <span id="calories">{{ calorie }} kcal</span></p>
-        <p>Exercise: <span id="exercise">{{ exercise }} minutes</span></p>
-        <p>Sleep: <span id="sleep">{{ sleep }} hours</span></p>
-        <p>Water intake: <span id="water">{{ water }} liters</span></p>
+    {% for metric in metrics %}
+        <p>Date: <span id="date">{{ metric.date }} </span></p>
+        <p>Calorie intake: <span id="calories">{{ metric.calorie_intake }} kcal</span></p>
+        <p>Exercise: <span id="exercise">{{ metric.exercise_duration }} minutes</span></p>
+        <p>Sleep: <span id="sleep">{{ metric.sleep_hours }} hours</span></p>
+        <p>Water intake: <span id="water">{{ metric.water_consumed }} liters</span></p>
+    {% endfor %}
     </div>
 </section>
 {% endblock %}
