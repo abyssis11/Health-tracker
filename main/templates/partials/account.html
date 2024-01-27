@@ -3,6 +3,7 @@
     <h2>Your Information and Goals:</h2>
     <div id="info">
         {% block account_info %}
+            {% include 'partials/account_info.html' %}
         {% endblock %}
     </div>   
     <form id="account-form" hx-post="/update-account" hx-target="#info" hx-swap="outerHTML">

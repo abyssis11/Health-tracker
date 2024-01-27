@@ -1,4 +1,3 @@
-{% block account_info %}
 <div id="info">
     <p>Username: {{ user.username }}</p>
     <p>Email: {{ user.email }}</p>
@@ -16,4 +15,3 @@
         <p>No health goals set for this user. Set your health goals <a href="{{ url_for('update_account') }}">here</a>.</p>
     {% endif %}
 </div>
-{% endblock %}
