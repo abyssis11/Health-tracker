@@ -240,7 +240,14 @@ def get_metrics():
 
 @app.route('/account')
 def account():
-    return render_template('partials/account.html')
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    user = User.query.filter_by(username=username).first()
+    user_health_goals = UserHealthGoals.query.filter_by(user=user).first()
+
+    return render_template('partials/account.html', user = user, user_health_goals = user_health_goals)
 
 @app.route('/health-metrics')
 def health_metrics():
