@@ -17,11 +17,42 @@ services:
     container_name: flask_app
     build: ./main
     ports:
-      - "4000:4000"
+      - "4010:4000"
     environment:
       - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
     depends_on:
       - postgres_db
-    
+
+  flask_app2:
+    container_name: flask_app2
+    build: ./main
+    ports:
+      - "4011:4000"
+    environment:
+      - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
+    depends_on:
+      - postgres_db
+  
+  flask_app3:
+    container_name: flask_app3
+    build: ./main
+    ports:
+      - "4012:4000"
+    environment:
+      - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
+    depends_on:
+      - postgres_db
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "4000:80"
+    depends_on:
+      - flask_app
+      - flask_app2
+      - flask_app3
+  
 volumes:
   pgdata:

@@ -15,7 +15,7 @@ app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = "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"
+app.config['MAIL_PASSWORD'] = "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"
 app.config['MAIL_DEFAULT_SENDER'] = "deni.kernjus@student.uniri.hr"
 mail = Mail(app)
 
@@ -277,7 +277,7 @@ def add_metric():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all()
+        #db.drop_all()
         db.create_all()
     app.secret_key = 'totallyuniqueSecretKey' 
     app.run(debug=True, host='0.0.0.0', port=4000)
