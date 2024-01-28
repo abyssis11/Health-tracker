@@ -3,10 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from os import environ
 from datetime import datetime, timedelta
 from flask import flash
+# Send grid
+from flask_mail import Mail, Message
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
 db = SQLAlchemy(app)
+app.config['SECRET_KEY'] = 'top-secret!'
+app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'apikey'
+app.config['MAIL_PASSWORD'] = "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"
+app.config['MAIL_DEFAULT_SENDER'] = "deni.kernjus@student.uniri.hr"
+mail = Mail(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +70,13 @@ def register():
             )
             db.session.add(new_user)
             db.session.commit()
+
+            msg = Message('Welcome to Health tracker app', recipients=[email])
+            msg.body = ('Congratulations! You have successufully reegistered in Health tracker app')
+            msg.html = ('<h1>Welcome to Health tracker app</h1>'
+                        '<p>Congratulations! '
+                        '<b>You have successufully reegistered in Health tracker app</b>!</p>')
+            mail.send(msg)
 
             # Redirect to the user's dashboard after successful registration
             return redirect(url_for('user_dashboard', username=username))
