@@ -17,11 +17,16 @@ services:
     container_name: flask_app
     build: ./main
     ports:
-      - "5010:5000"
+      - "4010:4000"
     environment:
       - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
+      - PYSPARK_PYTHON=python3.10
+      - PYSPARK_DRIVER_PYTHON=python3.10
     depends_on:
       - postgres_db
+      - spark
+      - kafka
+      - zookeeper
 
   flask_app2:
     container_name: flask_app2
@@ -30,8 +35,13 @@ services:
       - "4011:4000"
     environment:
       - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
+      - PYSPARK_PYTHON=python3.10
+      - PYSPARK_DRIVER_PYTHON=python3.10
     depends_on:
       - postgres_db
+      - spark
+      - kafka
+      - zookeeper
   
   flask_app3:
     container_name: flask_app3
@@ -44,6 +54,9 @@ services:
       - PYSPARK_DRIVER_PYTHON=python3.10
     depends_on:
       - postgres_db
+      - spark
+      - kafka
+      - zookeeper
   
   nginx:
     build:
@@ -55,11 +68,11 @@ services:
       - flask_app
       - flask_app2
       - flask_app3
-  
+      - postgres_db
       - spark
       - kafka
       - zookeeper
-    
+
   spark:
     container_name: spark
     build: ./spark
