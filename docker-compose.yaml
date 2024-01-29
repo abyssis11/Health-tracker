@@ -17,11 +17,76 @@ services:
     container_name: flask_app
     build: ./main
     ports:
-      - "4000:4000"
+      - "5000:5000"
     environment:
       - DB_URL=postgresql://postgres:postgres@postgres_db:5432/postgres
+      - PYSPARK_PYTHON=python3.10
+      - PYSPARK_DRIVER_PYTHON=python3.10
     depends_on:
       - postgres_db
+      - spark
+      - kafka
+      - zookeeper
     
+  spark:
+    container_name: spark
+    build: ./spark
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db
+    volumes:
+      - ./spark/postgresql-42.7.1.jar:/spark/postgresql-42.7.1.jar
+
+ 
+  spark-worker:
+    container_name: spark-worker
+    build: ./spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1G
+    depends_on:
+      - spark
+
+
+  kafka:
+    container_name: kafka
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      #- KAFKA_CREATE_TOPICS: "trigger:1:1"
+    depends_on:
+      - zookeeper
+
+  kafka-setup:
+    image: bitnami/kafka:latest
+    depends_on:
+      - kafka
+    command:
+      - /bin/bash
+      - -c
+      - |
+        apt-get update && apt-get install -y netcat &&
+        ./wait-for-it.sh kafka:9092 --strict --timeout=300 -- 
+        /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1 --topic spark_trigger
+
+  zookeeper:
+    container_name: zookeeper
+    restart: always
+    image: bitnami/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      
 volumes:
   pgdata:

@@ -5,7 +5,12 @@ from datetime import datetime, timedelta
 from flask import flash
 # Send grid
 from flask_mail import Mail, Message
-
+# Spark
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+# Kafka
+from kafka import KafkaProducer
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
@@ -15,9 +20,43 @@ app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = "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"
+app.config['MAIL_PASSWORD'] = "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"
 app.config['MAIL_DEFAULT_SENDER'] = "deni.kernjus@student.uniri.hr"
 mail = Mail(app)
+'''
+class SparkSessionSingleton:
+    _instance = None
+
+    @staticmethod
+    def get_instance():
+        """Static access method."""
+        if SparkSessionSingleton._instance is None:
+            SparkSessionSingleton._instance = SparkSession.builder \
+                .master("spark://spark:7077") \
+                .appName("Flask-Spark") \
+                .getOrCreate()
+        return SparkSessionSingleton._instance
+spark = SparkSessionSingleton.get_instance()
+'''
+
+# Kafka
+def send_kafka_trigger():
+    producer = KafkaProducer(
+        bootstrap_servers=['kafka:9092'],
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+
+    # Sending a simple trigger message
+    producer.send('spark_trigger', {'trigger': 'run_spark_job'})
+    #producer.close()
+    #producer.flush()
+    print("bio TU", flush=True)
+
+class Analysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    age = db.Column(db.Float)
+    height = db.Column(db.Float)
+    weight = db.Column(db.Float)    
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -228,6 +267,18 @@ def get_metrics():
             metrics_query = metrics_query.filter(HealthMetrics.date == (datetime.today() - timedelta(days=1)).date())
         elif period == 'last7days':
             metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=7)).date())
+            # Spark test
+            #metrics = metrics_query.first()
+            #user_health_goals = UserHealthGoals.query.filter_by(user=user).first()
+            #df = spark.createDataFrame([(metrics.exercise_duration, user_health_goals.goal_type_exercise)], ["Exercise_duration", "Exercise_duration_goal"])
+            #remaining_exercise = df.withColumn("Remaining_duration", col("Exercise_duration_goal") - col("Exercise_duration"))
+            #print(remaining_exercise, flush = True)
+            #dara = remaining_exercise.Remaining_duration
+            #print(dara, flush = True)
+            send_kafka_trigger()
+            analytics = Analysis.query.all()
+            print(analytics)
+
         elif period == 'lastmonth':
             metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=30)).date())
 
@@ -277,7 +328,7 @@ def add_metric():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all()
+        #db.drop_all()
         db.create_all()
     app.secret_key = 'totallyuniqueSecretKey' 
-    app.run(debug=True, host='0.0.0.0', port=4000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
