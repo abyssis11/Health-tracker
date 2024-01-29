@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 from flask import flash
 # Send grid
 from flask_mail import Mail, Message
-
+# Kafka
+from kafka import KafkaProducer
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
@@ -15,9 +17,51 @@ app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = "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"
+app.config['MAIL_PASSWORD'] = environ.get('SENDGRID_API_KEY')
 app.config['MAIL_DEFAULT_SENDER'] = "deni.kernjus@student.uniri.hr"
 mail = Mail(app)
+
+# Kafka
+def send_kafka_trigger(group_by ):
+    producer = KafkaProducer(
+        bootstrap_servers=['kafka:9092'],
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+
+    try:
+        # Sending a simple trigger message and waiting for the send to complete
+        future = producer.send('spark_trigger', {'trigger': 'run_spark_job', 'groupBy': group_by})
+        future.get(timeout=5)  # Wait for up to 5 seconds
+        print("Message sent successfully")
+    except Exception as e:
+        print(f"Failed to send message: {e}")
+    finally:
+        producer.close()
+
+class AgeAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    age = db.Column(db.Float)
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
+class HeightAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    height = db.Column(db.Float)
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
+class WeightAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    weight = db.Column(db.Float)
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -213,6 +257,7 @@ def get_metrics():
 
     username = session['username']
     user = User.query.filter_by(username=username).first()
+    user_goals = UserHealthGoals.query.filter_by(user=user).first()
 
     if user:
         period = request.args.get('period')
@@ -220,6 +265,9 @@ def get_metrics():
 
         # Example: Retrieve metrics based on the selected parameters
         metrics_query = HealthMetrics.query.filter_by(user=user)
+        #metrics_query_age = AgeAnalysis.query.filter_by(age=user_goals.age)
+        #metrics_query_height = HeightAnalysis.query.filter_by(height=user_goals.height)
+        #metrics_query_weight = WeightAnalysis.query.filter_by(weight=user_goals.weight)
 
         # Additional filters based on the selected period (you may need to adjust this logic)
         if period == 'today':
@@ -234,15 +282,19 @@ def get_metrics():
         # Additional filters based on the selected analytics type
         if analytics_type == 'me':
             metrics_query = metrics_query.filter(HealthMetrics.user == user)
+            
         elif analytics_type == 'age':
-            # Add logic for age-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('age')
+            metrics_query = AgeAnalysis.query.filter_by(age=user_goals.age)
         elif analytics_type == 'height':
-            # Add logic for height-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('height')
+            metrics_query = HeightAnalysis.query.filter_by(height=user_goals.height)
         elif analytics_type == 'weight':
-            # Add logic for weight-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('weight')
+            metrics_query = WeightAnalysis.query.filter_by(weight=user_goals.weight)
 
         # Execute the query and get the results
         metrics = metrics_query.all()
@@ -280,4 +332,4 @@ if __name__ == '__main__':
         #db.drop_all()
         db.create_all()
     app.secret_key = 'totallyuniqueSecretKey' 
-    app.run(debug=True, host='0.0.0.0', port=4000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

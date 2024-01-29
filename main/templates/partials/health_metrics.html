@@ -13,9 +13,9 @@
     <h3>Analytics for:</h3>
     <div class="analytics-selector">
         <button calss ="active" hx-get="/metrics?type=me" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Just Me</button>
-        <button calss ="active" hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my age</button>
-        <button calss ="active" hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my height</button>
-        <button calss ="active" hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">All my weight</button>
+        <button calss ="active" hx-get="/metrics?type=age" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Avg my age</button>
+        <button calss ="active" hx-get="/metrics?type=height" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Avg my height</button>
+        <button calss ="active" hx-get="/metrics?type=weight" hx-trigger="click" hx-target="#metrics" hx-swap="outerHTML">Avg my weight</button>
     </div>
     <div id="metrics">
         {% block metrics_block %}
