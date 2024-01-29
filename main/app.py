@@ -5,9 +5,6 @@ from datetime import datetime, timedelta
 from flask import flash
 # Send grid
 from flask_mail import Mail, Message
-# Spark
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
 # Kafka
 from kafka import KafkaProducer
 import json
@@ -20,43 +17,51 @@ app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'apikey'
-app.config['MAIL_PASSWORD'] = "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"
+app.config['MAIL_PASSWORD'] = environ.get('SENDGRID_API_KEY')
 app.config['MAIL_DEFAULT_SENDER'] = "deni.kernjus@student.uniri.hr"
 mail = Mail(app)
-'''
-class SparkSessionSingleton:
-    _instance = None
-
-    @staticmethod
-    def get_instance():
-        """Static access method."""
-        if SparkSessionSingleton._instance is None:
-            SparkSessionSingleton._instance = SparkSession.builder \
-                .master("spark://spark:7077") \
-                .appName("Flask-Spark") \
-                .getOrCreate()
-        return SparkSessionSingleton._instance
-spark = SparkSessionSingleton.get_instance()
-'''
 
 # Kafka
-def send_kafka_trigger():
+def send_kafka_trigger(group_by ):
     producer = KafkaProducer(
         bootstrap_servers=['kafka:9092'],
         value_serializer=lambda v: json.dumps(v).encode('utf-8')
     )
 
-    # Sending a simple trigger message
-    producer.send('spark_trigger', {'trigger': 'run_spark_job'})
-    #producer.close()
-    #producer.flush()
-    print("bio TU", flush=True)
+    try:
+        # Sending a simple trigger message and waiting for the send to complete
+        future = producer.send('spark_trigger', {'trigger': 'run_spark_job', 'groupBy': group_by})
+        future.get(timeout=5)  # Wait for up to 5 seconds
+        print("Message sent successfully")
+    except Exception as e:
+        print(f"Failed to send message: {e}")
+    finally:
+        producer.close()
 
-class Analysis(db.Model):
+class AgeAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     age = db.Column(db.Float)
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
+class HeightAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     height = db.Column(db.Float)
-    weight = db.Column(db.Float)    
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
+class WeightAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    weight = db.Column(db.Float)
+    calorie_intake = db.Column(db.Float)
+    exercise_duration = db.Column(db.Float)
+    sleep_hours = db.Column(db.Float)
+    water_consumed = db.Column(db.Float)
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -252,6 +257,7 @@ def get_metrics():
 
     username = session['username']
     user = User.query.filter_by(username=username).first()
+    user_goals = UserHealthGoals.query.filter_by(user=user).first()
 
     if user:
         period = request.args.get('period')
@@ -259,6 +265,9 @@ def get_metrics():
 
         # Example: Retrieve metrics based on the selected parameters
         metrics_query = HealthMetrics.query.filter_by(user=user)
+        #metrics_query_age = AgeAnalysis.query.filter_by(age=user_goals.age)
+        #metrics_query_height = HeightAnalysis.query.filter_by(height=user_goals.height)
+        #metrics_query_weight = WeightAnalysis.query.filter_by(weight=user_goals.weight)
 
         # Additional filters based on the selected period (you may need to adjust this logic)
         if period == 'today':
@@ -267,33 +276,25 @@ def get_metrics():
             metrics_query = metrics_query.filter(HealthMetrics.date == (datetime.today() - timedelta(days=1)).date())
         elif period == 'last7days':
             metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=7)).date())
-            # Spark test
-            #metrics = metrics_query.first()
-            #user_health_goals = UserHealthGoals.query.filter_by(user=user).first()
-            #df = spark.createDataFrame([(metrics.exercise_duration, user_health_goals.goal_type_exercise)], ["Exercise_duration", "Exercise_duration_goal"])
-            #remaining_exercise = df.withColumn("Remaining_duration", col("Exercise_duration_goal") - col("Exercise_duration"))
-            #print(remaining_exercise, flush = True)
-            #dara = remaining_exercise.Remaining_duration
-            #print(dara, flush = True)
-            send_kafka_trigger()
-            analytics = Analysis.query.all()
-            print(analytics)
-
         elif period == 'lastmonth':
             metrics_query = metrics_query.filter(HealthMetrics.date >= (datetime.today() - timedelta(days=30)).date())
 
         # Additional filters based on the selected analytics type
         if analytics_type == 'me':
             metrics_query = metrics_query.filter(HealthMetrics.user == user)
+            
         elif analytics_type == 'age':
-            # Add logic for age-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('age')
+            metrics_query = AgeAnalysis.query.filter_by(age=user_goals.age)
         elif analytics_type == 'height':
-            # Add logic for height-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('height')
+            metrics_query = HeightAnalysis.query.filter_by(height=user_goals.height)
         elif analytics_type == 'weight':
-            # Add logic for weight-based analytics
-            pass
+            # Spark
+            send_kafka_trigger('weight')
+            metrics_query = WeightAnalysis.query.filter_by(weight=user_goals.weight)
 
         # Execute the query and get the results
         metrics = metrics_query.all()

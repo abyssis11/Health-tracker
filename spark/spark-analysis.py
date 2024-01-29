@@ -1,11 +1,11 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, avg, monotonically_increasing_id, get_json_object, from_json
 from pyspark.sql.types import StringType, StructField, StructType, TimestampType
 
 # Define the schema of the Kafka messages
 schema = StructType([
-    StructField("timestamp", TimestampType()),
-    StructField("data", StringType())
+    StructField("trigger", StringType()),
+    StructField("groupBy", StringType())
 ])
 
 # Initialize Spark Session
@@ -29,7 +29,9 @@ schema_ddl = schema.simpleString()
 
 # Apply the schema to the data
 df_structured = df_values.selectExpr(f"from_json(value, '{schema_ddl}') as data").select("data.*")
-
+#df_structured = df_kafka.selectExpr("CAST(value AS STRING) as jsonStr") \
+#    .select(from_json(col("jsonStr"), schema).alias("data")) \
+#    .select("data.*")
 
 def process_trigger(df, epoch_id):
     # JDBC URL
@@ -40,15 +42,51 @@ def process_trigger(df, epoch_id):
         "driver": "org.postgresql.Driver"
     }
 
+    group_by_values = df.select("groupBy").collect()
+
+    if group_by_values:
+        group_by_column = group_by_values[0]["groupBy"]
+    else:
+        # Handle the case when there are no rows
+        group_by_column = None
     # Read data from PostgreSQL
+    df_health_metrics = spark.read.jdbc(url=jdbc_url, table="health_metrics", properties=properties)
     df_user_goals = spark.read.jdbc(url=jdbc_url, table="user_health_goals", properties=properties)
 
-    # Perform your analysis, join with Kafka data if needed
-    # Example: Group by 'age' and calculate average 'height' and 'weight'
-    result = df_user_goals.groupBy("age").avg("height", "weight")
+    # Join the tables on user_id
+    df_joined = df_health_metrics.join(df_user_goals, "user_id")
 
-    # Write the result back to PostgreSQL
-    result.write.jdbc(url=jdbc_url, table="analysis", mode="append", properties=properties)
+    if group_by_column == "age" or group_by_column == None:
+        # Group by Age, Weight, and Height and calculate averages
+        df_age_analysis = df_joined.groupBy("age").agg(
+            avg("calorie_intake").alias("calorie_intake"),
+            avg("exercise_duration").alias("exercise_duration"),
+            avg("sleep_hours").alias("sleep_hours"),
+            avg("water_consumed").alias("water_consumed")
+        ).withColumn("id", monotonically_increasing_id())
+        # Write the results back to PostgreSQL
+        df_age_analysis.write.jdbc(url=jdbc_url, table="age_analysis", mode="overwrite", properties=properties)
+
+    elif group_by_column == "weight" or group_by_column == None:
+        df_weight_analysis = df_joined.groupBy("weight").agg(
+            avg("calorie_intake").alias("calorie_intake"),
+            avg("exercise_duration").alias("exercise_duration"),
+            avg("sleep_hours").alias("sleep_hours"),
+            avg("water_consumed").alias("water_consumed")
+        ).withColumn("id", monotonically_increasing_id())
+        # Write the results back to PostgreSQL
+        df_weight_analysis.write.jdbc(url=jdbc_url, table="weight_analysis", mode="overwrite", properties=properties)
+
+    elif group_by_column == "height" or group_by_column == None:
+        df_height_analysis = df_joined.groupBy("height").agg(
+            avg("calorie_intake").alias("calorie_intake"),
+            avg("exercise_duration").alias("exercise_duration"),
+            avg("sleep_hours").alias("sleep_hours"),
+            avg("water_consumed").alias("water_consumed")
+        ).withColumn("id", monotonically_increasing_id())
+        # Write the results back to PostgreSQL
+        df_height_analysis.write.jdbc(url=jdbc_url, table="height_analysis", mode="overwrite", properties=properties)
+
 
 # Start the streaming query
 query = df_structured.writeStream \
